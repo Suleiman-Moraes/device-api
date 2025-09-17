@@ -36,6 +36,13 @@ class IDeviceMapperTest {
 	}
 
     @Test
+	@DisplayName("JUnit test given null value when toEntity then return null")
+    void testGivenNullValueWhenToEntityThenReturnNull() {
+        final Device entity = mapper.toEntity(null);
+        assertNull(entity, "Entity should be null");
+    }
+
+    @Test
 	@DisplayName("JUnit test given DeviceDTO when toEntity then parse to Device")
     void testGivenDeviceDTOWhenToEntityThenParseToDevice() {
         final DeviceDTO dto = mockDeviceDto.mockEntity(1);
@@ -47,6 +54,13 @@ class IDeviceMapperTest {
         assertEquals(dto.getState(), entity.getState(), "State should be equal");
         assertNull(entity.getId(), "ID should be null");
         assertNull(entity.getCreationTime(), "Creation time should be null");
+    }
+
+    @Test
+	@DisplayName("JUnit test given null value when toListDTO then return null")
+    void testGivenNullValueWhenToListDTOThenReturnNull() {
+        final DeviceListDTO dto = mapper.toListDTO(null);
+        assertNull(dto, "DTO should be null");
     }
 
     @Test
