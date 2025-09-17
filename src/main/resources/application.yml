@@ -20,3 +20,6 @@ spring:
     enabled: true
     locations: db/postgresql
     schemas: device_api
+
+cors:
+  originPatterns: http://localhost:8080,http://localhost:4200
