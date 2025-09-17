@@ -14,6 +14,8 @@ import org.mockito.Spy;
 
 import com.moraes.device_api.api.model.Device;
 import com.moraes.device_api.api.model.dto.device.DeviceDTO;
+import com.moraes.device_api.api.model.dto.device.DeviceListDTO;
+import com.moraes.device_api.mock.MockDevice;
 import com.moraes.device_api.mock.MockDeviceDTO;
 
 class IDeviceMapperTest {
@@ -22,12 +24,14 @@ class IDeviceMapperTest {
 	@InjectMocks
 	private IDeviceMapper mapper = Mappers.getMapper(IDeviceMapper.class);
 
+    private MockDevice mockDevice;
     private MockDeviceDTO mockDeviceDto;
     
     @BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
 
+		mockDevice = new MockDevice();
 		mockDeviceDto = new MockDeviceDTO();
 	}
 
@@ -43,5 +47,19 @@ class IDeviceMapperTest {
         assertEquals(dto.getState(), entity.getState(), "State should be equal");
         assertNull(entity.getId(), "ID should be null");
         assertNull(entity.getCreationTime(), "Creation time should be null");
+    }
+
+    @Test
+    @DisplayName("JUnit test given Device when toListDTO then parse to DeviceListDTO")
+    void testGivenDeviceWhenToListDTOThenParseToDeviceListDTO() {
+        final Device entity = mockDevice.mockEntity(1);
+        final DeviceListDTO dto = mapper.toListDTO(entity);
+        
+        assertNotNull(dto);
+        assertEquals(entity.getName(), dto.getName(), "Name should be equal");
+        assertEquals(entity.getBrand(), dto.getBrand(), "Brand should be equal");
+        assertEquals(entity.getState(), dto.getState(), "State should be equal");
+        assertEquals(entity.getId(), dto.getId(), "ID should be equal");
+        assertEquals(entity.getCreationTime(), dto.getCreationTime(), "Creation time should be equal");
     }
 }
