@@ -76,4 +76,40 @@ class IDeviceMapperTest {
         assertEquals(entity.getId(), dto.getId(), "ID should be equal");
         assertEquals(entity.getCreationTime(), dto.getCreationTime(), "Creation time should be equal");
     }
+
+    @Test
+	@DisplayName("JUnit test given null DeviceDTO when updateFromDeviceDTO then do nothing")
+    void testGivenNullDeviceDTOWhenUpdateFromDeviceDTOThenDoNothing() {
+        Device entity = mockDevice.mockEntity(1);
+        final String nameBefore = entity.getName();
+        final String brandBefore = entity.getBrand();
+        final var stateBefore = entity.getState();
+        final Long idBefore = entity.getId();
+        final var creationTimeBefore = entity.getCreationTime();
+        mapper.updateFromDeviceDTO(null, entity);
+        
+        assertNotNull(entity);
+        assertEquals(nameBefore, entity.getName(), "Name should be equal");
+        assertEquals(brandBefore, entity.getBrand(), "Brand should be equal");
+        assertEquals(stateBefore, entity.getState(), "State should be equal");
+        assertEquals(idBefore, entity.getId(), "ID should be equal");
+        assertEquals(creationTimeBefore, entity.getCreationTime(), "Creation time should be equal");
+    }
+
+    @Test
+	@DisplayName("JUnit test given DeviceDTO when updateFromDeviceDTO then update Device")
+    void testGivenDeviceDTOWhenUpdateFromDeviceDTOThenUpdateDevice() {
+        Device entity = mockDevice.mockEntity(1);
+        final Long idBefore = entity.getId();
+        final var creationTimeBefore = entity.getCreationTime();
+        final DeviceDTO dto = mockDeviceDto.mockEntity(2);
+        mapper.updateFromDeviceDTO(dto, entity);
+        
+        assertNotNull(entity);
+        assertEquals(dto.getName(), entity.getName(), "Name should be equal");
+        assertEquals(dto.getBrand(), entity.getBrand(), "Brand should be equal");
+        assertEquals(dto.getState(), entity.getState(), "State should be equal");
+        assertEquals(idBefore, entity.getId(), "ID should be equal");
+        assertEquals(creationTimeBefore, entity.getCreationTime(), "Creation time should be equal");
+    }
 }

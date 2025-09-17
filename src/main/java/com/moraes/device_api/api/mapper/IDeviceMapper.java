@@ -2,6 +2,7 @@ package com.moraes.device_api.api.mapper;
 
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
 import com.moraes.device_api.api.model.Device;
@@ -34,4 +35,16 @@ public interface IDeviceMapper {
      */
     @BeanMapping(unmappedTargetPolicy = ReportingPolicy.IGNORE)
     DeviceListDTO toListDTO(Device entity);
+
+    /**
+     * Updates a Device object with the values from a DeviceDTO object.
+     * <p>
+     * Ignores unmapped target properties.
+     * <p>
+     * 
+     * @param dto    the DeviceDTO object with the values to update.
+     * @param entity the Device object to update.
+     */
+    @BeanMapping(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+    void updateFromDeviceDTO(DeviceDTO dto, @MappingTarget Device entity);
 }

@@ -6,10 +6,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.moraes.device_api.api.exception.ResourceNotFoundException;
 import com.moraes.device_api.api.mapper.IDeviceMapper;
 import com.moraes.device_api.api.model.Device;
+import com.moraes.device_api.api.model.dto.ExceptionUtilDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceListDTO;
+import com.moraes.device_api.api.model.enums.DeviceStateEnum;
 import com.moraes.device_api.api.repository.IDeviceRepository;
 import com.moraes.device_api.api.service.interfaces.IDeviceService;
+import com.moraes.device_api.api.util.ExceptionsUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +45,17 @@ public class DeviceService implements IDeviceService {
         return mapper.toListDTO(object);
     }
 
+    // TODO: Need unit tests
+    @Transactional
+    // @Override
+    public void update(Long id, DeviceDTO dto) {
+        log.debug("Updating device with ID: {} using data: {}", id, dto);
+        Device existingObject = getById(id);
+        mapper.updateFromDeviceDTO(dto, existingObject);
+        repository.save(existingObject);
+        log.debug("Device with ID: {} updated successfully", id);
+    }
+
     /**
      * Retrieves a device by its ID.
      * <p>
@@ -62,5 +76,24 @@ public class DeviceService implements IDeviceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + id));
         log.debug("Device fetched: {}", object);
         return object;
+    }
+
+    // TODO: Need unit tests
+    public void validateBeforeUpdate(Device entity, DeviceDTO dto) {
+        log.debug("Validating device before update: {}", entity);
+        final boolean isDeviceInUse = DeviceStateEnum.IN_USE.equals(entity.getState())
+                && DeviceStateEnum.IN_USE.equals(dto.getState());
+        log.debug("Is device in use: {}", isDeviceInUse);
+        if (isDeviceInUse) {
+            ExceptionsUtil.throwValidExceptions(
+                    ExceptionUtilDTO.builder()
+                            .condition(entity.getName().equals(dto.getName()))
+                            .message("Device name cannot be changed while in use.")
+                            .build(),
+                    ExceptionUtilDTO.builder()
+                            .condition(entity.getBrand().equals(dto.getBrand()))
+                            .message("Device brand cannot be changed while in use.")
+                            .build());
+        }
     }
 }
