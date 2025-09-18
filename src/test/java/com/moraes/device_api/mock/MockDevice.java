@@ -1,6 +1,7 @@
 package com.moraes.device_api.mock;
 
 import com.moraes.device_api.api.model.Device;
+import com.moraes.device_api.api.model.enums.DeviceStateEnum;
 import com.moraes.device_api.mock.interfaces.AbstractMock;
 
 public class MockDevice extends AbstractMock<Device> {
@@ -12,6 +13,6 @@ public class MockDevice extends AbstractMock<Device> {
 
     @Override
     protected void setOdersValues(Device entity, Integer number) {
-        // No orders to set
+        entity.setState(DeviceStateEnum.AVAILABLE);
     }
 }

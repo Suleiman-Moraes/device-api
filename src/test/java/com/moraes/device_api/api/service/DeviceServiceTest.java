@@ -1,24 +1,32 @@
 package com.moraes.device_api.api.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import com.moraes.device_api.api.exception.ResourceNotFoundException;
+import com.moraes.device_api.api.exception.ValidException;
 import com.moraes.device_api.api.mapper.IDeviceMapper;
 import com.moraes.device_api.api.model.Device;
+import com.moraes.device_api.api.model.dto.device.DeviceDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceListDTO;
+import com.moraes.device_api.api.model.enums.DeviceStateEnum;
 import com.moraes.device_api.api.repository.IDeviceRepository;
 import com.moraes.device_api.mock.MockDevice;
 import com.moraes.device_api.mock.MockDeviceDTO;
@@ -105,5 +113,109 @@ class DeviceServiceTest {
         assertEquals(entity.getName(), response.getName(), "Name should be equal " + entity.getName());
         assertEquals(entity.getBrand(), response.getBrand(), "Brand should be equal " + entity.getBrand());
         assertEquals(entity.getState(), response.getState(), "State should be equal " + entity.getState());
+    }
+
+    @Test
+    @DisplayName("JUnit test given Device ID and DeviceDTO when update then update Device")
+    void testGivenDeviceIDAndDeviceDTOWhenUpdateThenUpdateDevice() {
+        final var dto = mockDeviceDTO.mockEntity(1);
+        when(repository.findById(id)).thenReturn(Optional.of(entity));
+
+        assertDoesNotThrow(() -> service.update(id, dto), "Should not throw exception");
+    }
+
+    @Test
+    @DisplayName("JUnit test given Device ID when delete then delete Device")
+    void testGivenDeviceIDWhenDeleteThenDeleteDevice() {
+        when(repository.findById(id)).thenReturn(Optional.of(entity));
+
+        assertDoesNotThrow(() -> service.delete(id), "Should not throw exception");
+    }
+
+    @Test
+    @DisplayName("JUnit test given Device ID when delete with device in use then throw ValidException")
+    void testGivenDeviceIDWhenDeleteWithDeviceInUseThenThrowValidException() {
+        entity.setState(DeviceStateEnum.IN_USE);
+        when(repository.findById(id)).thenReturn(Optional.of(entity));
+
+        final ValidException exception = assertThrows(ValidException.class, () -> {
+            service.delete(id);
+        }, "Should throw ValidException when device is in use");
+        assertNotNull(exception.getErrs(), "Errors should not be null");
+        assertEquals(1, exception.getErrs().size(), "Errors size should be equal 1");
+        assertEquals("Device in use cannot be deleted.", exception.getErrs().get(0), "Error message should be equal");
+    }
+
+    @ParameterizedTest(name = "{index} => entity={0}, dto={1}, errorsSize={2}, description={3}")
+    @MethodSource("provideParametersValidateBeforeUpdateShouldThrow")
+    @DisplayName("JUnit test given any invalid Device and invalid DeviceDTO when validateBeforeUpdate then Does Not Throw Exception")
+    void testGivenAnyInvalidDeviceAndInvalidDeviceDTOWhenValidateBeforeUpdateThenShouldThrowException(Device entity,
+            DeviceDTO dto, int errorsSize, String description) {
+        final ValidException exception = assertThrows(ValidException.class, () -> {
+            service.validateBeforeUpdate(entity, dto);
+        }, "Should throw ValidException when " + description);
+        assertNotNull(exception.getErrs(), "Errors should not be null");
+        assertEquals(errorsSize, exception.getErrs().size(), "Errors size should be equal " + errorsSize);
+    }
+
+    @ParameterizedTest(name = "{index} => entity={0}, dto={1}, description={2}")
+    @MethodSource("provideParametersValidateBeforeUpdateDoesNotThrow")
+    @DisplayName("JUnit test given any valid Device and valid DeviceDTO when validateBeforeUpdate then Does Not Throw Exception")
+    void testGivenAnyValidDeviceAndValidDeviceDTOWhenValidateBeforeUpdateThenDoesNotThrowException(Device entity,
+            DeviceDTO dto, String description) {
+        assertDoesNotThrow(() -> service.validateBeforeUpdate(entity, dto),
+                "Should not throw exception when " + description);
+    }
+
+    private static Stream<Arguments> provideParametersValidateBeforeUpdateShouldThrow() {
+        final DeviceStateEnum state = DeviceStateEnum.IN_USE;
+        final String name = "Device Name";
+        final String brand = "Device Brand";
+        final Device entityInUse = Device.builder()
+                .state(state)
+                .name(name)
+                .brand(brand)
+                .build();
+        final DeviceDTO dtoChangingName = DeviceDTO.builder()
+                .state(state)
+                .name("Different Name")
+                .brand(brand)
+                .build();
+        final DeviceDTO dtoChangingBrand = DeviceDTO.builder()
+                .state(state)
+                .name(name)
+                .brand("Different Brand")
+                .build();
+        final DeviceDTO dtoChangeingBoth = DeviceDTO.builder()
+                .state(state)
+                .name("Different Name")
+                .brand("Different Brand")
+                .build();
+
+        return Stream.of(Arguments.of(entityInUse, dtoChangingName, 1, "Name changed while in use"),
+                Arguments.of(entityInUse, dtoChangingBrand, 1, "Brand changed while in use"),
+                Arguments.of(entityInUse, dtoChangeingBoth, 2, "Both name and brand changed while in use"));
+    }
+
+    private static Stream<Arguments> provideParametersValidateBeforeUpdateDoesNotThrow() {
+        final String name = "Device Name";
+        final String brand = "Device Brand";
+        final Device entityAvailable = Device.builder().state(DeviceStateEnum.AVAILABLE).build();
+        final Device entityInactive = Device.builder().state(DeviceStateEnum.INACTIVE).build();
+        final Device entityInUse = Device.builder()
+                .state(DeviceStateEnum.IN_USE)
+                .name(name)
+                .brand(brand)
+                .build();
+        final DeviceDTO dtoInUse = DeviceDTO.builder()
+                .state(DeviceStateEnum.IN_USE)
+                .name(name)
+                .brand(brand)
+                .build();
+        final DeviceDTO dtoNotInUse = DeviceDTO.builder().state(DeviceStateEnum.AVAILABLE).build();
+
+        return Stream.of(Arguments.of(entityAvailable, dtoInUse, "Entity is available"),
+                Arguments.of(entityInactive, dtoNotInUse, "Entity is inactive"),
+                Arguments.of(entityInUse, dtoInUse, "Entity is in use but name and brand are the same"));
     }
 }

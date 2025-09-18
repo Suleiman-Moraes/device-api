@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.moraes.device_api.api.exception.ResourceNotFoundException;
+import com.moraes.device_api.api.exception.ValidException;
 import com.moraes.device_api.api.mapper.IDeviceMapper;
 import com.moraes.device_api.api.model.Device;
 import com.moraes.device_api.api.model.dto.ExceptionUtilDTO;
@@ -45,15 +46,29 @@ public class DeviceService implements IDeviceService {
         return mapper.toListDTO(object);
     }
 
-    // TODO: Need unit tests
     @Transactional
-    // @Override
+    @Override
     public void update(Long id, DeviceDTO dto) {
         log.debug("Updating device with ID: {} using data: {}", id, dto);
         Device existingObject = getById(id);
         mapper.updateFromDeviceDTO(dto, existingObject);
+        validateBeforeUpdate(existingObject, dto);
         repository.save(existingObject);
         log.debug("Device with ID: {} updated successfully", id);
+    }
+
+    @Transactional
+    @Override
+    public void delete(Long id) {
+        log.debug("Deleting device with ID: {}", id);
+        final Device object = getById(id);
+        ExceptionsUtil.throwValidExceptions(
+                ExceptionUtilDTO.builder()
+                        .condition(!DeviceStateEnum.IN_USE.equals(object.getState()))
+                        .message("Device in use cannot be deleted.")
+                        .build());
+        repository.delete(object);
+        log.debug("Device with ID: {} deleted successfully", id);
     }
 
     /**
@@ -78,11 +93,25 @@ public class DeviceService implements IDeviceService {
         return object;
     }
 
-    // TODO: Need unit tests
+    /**
+     * Validates a device before update.
+     * <p>
+     * This method checks if the device is in use and if the conditions
+     * that cannot be changed are equal between the entity and the DTO.
+     * If the conditions are not met, a ValidException is thrown.
+     * <p>
+     * This method is used to ensure that the device name and brand cannot be
+     * changed while the device is in use.
+     * <p>
+     * 
+     * @param entity the device entity to validate
+     * @param dto    the device DTO object containing the device data to validate
+     * @throws ValidException if the device is in use and the conditions cannot be
+     *                        changed
+     */
     public void validateBeforeUpdate(Device entity, DeviceDTO dto) {
         log.debug("Validating device before update: {}", entity);
-        final boolean isDeviceInUse = DeviceStateEnum.IN_USE.equals(entity.getState())
-                && DeviceStateEnum.IN_USE.equals(dto.getState());
+        final boolean isDeviceInUse = DeviceStateEnum.IN_USE.equals(entity.getState());
         log.debug("Is device in use: {}", isDeviceInUse);
         if (isDeviceInUse) {
             ExceptionsUtil.throwValidExceptions(
