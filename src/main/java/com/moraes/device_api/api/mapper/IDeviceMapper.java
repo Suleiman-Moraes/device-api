@@ -3,6 +3,7 @@ package com.moraes.device_api.api.mapper;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import com.moraes.device_api.api.model.Device;
@@ -47,4 +48,10 @@ public interface IDeviceMapper {
      */
     @BeanMapping(unmappedTargetPolicy = ReportingPolicy.IGNORE)
     void updateFromDeviceDTO(DeviceDTO dto, @MappingTarget Device entity);
+
+    @BeanMapping(
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
+    )
+    void updatePartialFromDeviceDTO(DeviceDTO dto, @MappingTarget Device entity);
 }

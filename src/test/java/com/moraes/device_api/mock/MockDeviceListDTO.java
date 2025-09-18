@@ -6,6 +6,11 @@ import com.moraes.device_api.mock.interfaces.AbstractMock;
 
 public class MockDeviceListDTO extends AbstractMock<DeviceListDTO> {
 
+    public MockDeviceListDTO() {
+        super();
+        ignoreFields.add("DEVICE_LIST_DTO_MAPPING");
+    }
+
     @Override
     protected Class<DeviceListDTO> getClazz() {
         return DeviceListDTO.class;

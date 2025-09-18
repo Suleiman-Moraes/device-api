@@ -55,10 +55,22 @@ public class DeviceService implements IDeviceService {
     public void update(Long id, DeviceDTO dto) {
         log.debug("Updating device with ID: {} using data: {}", id, dto);
         Device existingObject = getById(id);
-        mapper.updateFromDeviceDTO(dto, existingObject);
         validateBeforeUpdate(existingObject, dto);
+        mapper.updateFromDeviceDTO(dto, existingObject);
         repository.save(existingObject);
         log.debug("Device with ID: {} updated successfully", id);
+    }
+
+    // TODO: Make tests
+    @Transactional
+    // @Override
+    public void updatePartial(Long id, DeviceDTO dto) {
+        log.debug("Partially updating device with ID: {} using data: {}", id, dto);
+        Device existingObject = getById(id);
+        validateBeforeUpdate(existingObject, dto);
+        mapper.updatePartialFromDeviceDTO(dto, existingObject);
+        repository.save(existingObject);
+        log.debug("Device with ID: {} partially updated successfully", id);
     }
 
     @Transactional
