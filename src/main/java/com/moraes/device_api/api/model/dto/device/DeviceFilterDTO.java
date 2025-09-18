@@ -1,18 +1,19 @@
-package com.moraes.device_api.api.model.dto;
+package com.moraes.device_api.api.model.dto.device;
 
 import org.springframework.data.domain.Sort.Direction;
+
+import com.moraes.device_api.api.model.dto.interfaces.IFilterDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@SuperBuilder
-public class FilterDTO {
+@Builder
+public class DeviceFilterDTO implements IFilterDTO {
 
     @Builder.Default
     private boolean paginate = false;
@@ -25,12 +26,12 @@ public class FilterDTO {
 
     private Direction direction;
 
+    @Builder.Default
+    private String property = "id";
+
     private String searchText;
 
-    public Direction getDirection() {
-        if (direction == null) {
-            direction = Direction.DESC;
-        }
-        return direction;
-    }
+    private String name;
+
+    private String brand;
 }

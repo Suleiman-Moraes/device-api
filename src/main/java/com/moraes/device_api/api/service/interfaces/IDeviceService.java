@@ -1,8 +1,11 @@
 package com.moraes.device_api.api.service.interfaces;
 
+import org.springframework.data.domain.Page;
+
 import com.moraes.device_api.api.exception.ResourceNotFoundException;
 import com.moraes.device_api.api.exception.ValidException;
 import com.moraes.device_api.api.model.dto.device.DeviceDTO;
+import com.moraes.device_api.api.model.dto.device.DeviceFilterDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceListDTO;
 
 public interface IDeviceService {
@@ -84,4 +87,23 @@ public interface IDeviceService {
      *                                   cannot be changed
      */
     void delete(Long id);
+
+    /**
+     * Retrieves all devices with pagination.
+     * <p>
+     * This method is transactional and will rollback if an exception occurs.
+     * <p>
+     * The method will fetch all devices from the database with the given filter.
+     * The filter will be used to order the devices and to set the pagination.
+     * <p>
+     * The method will log a debug message with the given filter and the fetched
+     * devices.
+     * <p>
+     * The method will return a page of devices mapped from the fetched devices.
+     * <p>
+     * 
+     * @param filter the device filter
+     * @return a page of devices mapped from the fetched devices
+     */
+    Page<DeviceListDTO> getAll(DeviceFilterDTO filter);
 }

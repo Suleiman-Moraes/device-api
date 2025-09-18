@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -19,14 +20,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.springframework.data.domain.Page;
 
 import com.moraes.device_api.api.exception.ResourceNotFoundException;
 import com.moraes.device_api.api.exception.ValidException;
 import com.moraes.device_api.api.mapper.IDeviceMapper;
 import com.moraes.device_api.api.model.Device;
 import com.moraes.device_api.api.model.dto.device.DeviceDTO;
+import com.moraes.device_api.api.model.dto.device.DeviceFilterDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceListDTO;
 import com.moraes.device_api.api.model.enums.DeviceStateEnum;
+import com.moraes.device_api.api.repository.IDeviceCustomRepository;
 import com.moraes.device_api.api.repository.IDeviceRepository;
 import com.moraes.device_api.mock.MockDevice;
 import com.moraes.device_api.mock.MockDeviceDTO;
@@ -40,6 +44,9 @@ class DeviceServiceTest {
 
     @Mock
     private IDeviceRepository repository;
+
+    @Mock
+    private IDeviceCustomRepository customRepository;
 
     @Mock
     private IDeviceMapper mapper;
@@ -165,6 +172,19 @@ class DeviceServiceTest {
             DeviceDTO dto, String description) {
         assertDoesNotThrow(() -> service.validateBeforeUpdate(entity, dto),
                 "Should not throw exception when " + description);
+    }
+
+    @Test
+    @DisplayName("JUnit test given DeviceFilterDTO when getAll then return Page of DeviceListDTO")
+    void testGivenDeviceFilterDTOWhenGetAllThenReturnPageOfDeviceListDTO() {
+        final DeviceFilterDTO filter = DeviceFilterDTO.builder().build();
+
+        when(customRepository.findByFilter(filter)).thenReturn(Page.empty());
+
+        final Page<DeviceListDTO> response = service.getAll(filter);
+
+        assertNotNull(response, "Page should not be null");
+        assertTrue(response.isEmpty(), "Page should be empty");
     }
 
     private static Stream<Arguments> provideParametersValidateBeforeUpdateShouldThrow() {

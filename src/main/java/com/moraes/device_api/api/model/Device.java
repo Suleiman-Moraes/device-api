@@ -2,9 +2,12 @@ package com.moraes.device_api.api.model;
 
 import java.time.LocalDateTime;
 
+import com.moraes.device_api.api.model.dto.device.DeviceListDTO;
 import com.moraes.device_api.api.model.enums.DeviceStateEnum;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ColumnResult;
+import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -12,12 +15,21 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.SqlResultSetMapping;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@SqlResultSetMapping(name = DeviceListDTO.DEVICE_LIST_DTO_MAPPING, classes = {
+        @ConstructorResult(targetClass = DeviceListDTO.class, columns = {
+                @ColumnResult(name = "id", type = Long.class),
+                @ColumnResult(name = "name", type = String.class),
+                @ColumnResult(name = "brand", type = String.class),
+                @ColumnResult(name = "state", type = String.class),
+                @ColumnResult(name = "creationTime", type = LocalDateTime.class)
+        }) })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

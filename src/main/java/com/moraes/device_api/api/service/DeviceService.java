@@ -1,5 +1,6 @@
 package com.moraes.device_api.api.service;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,8 +10,10 @@ import com.moraes.device_api.api.mapper.IDeviceMapper;
 import com.moraes.device_api.api.model.Device;
 import com.moraes.device_api.api.model.dto.ExceptionUtilDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceDTO;
+import com.moraes.device_api.api.model.dto.device.DeviceFilterDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceListDTO;
 import com.moraes.device_api.api.model.enums.DeviceStateEnum;
+import com.moraes.device_api.api.repository.IDeviceCustomRepository;
 import com.moraes.device_api.api.repository.IDeviceRepository;
 import com.moraes.device_api.api.service.interfaces.IDeviceService;
 import com.moraes.device_api.api.util.ExceptionsUtil;
@@ -24,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DeviceService implements IDeviceService {
 
     private final IDeviceRepository repository;
+    private final IDeviceCustomRepository customRepository;
 
     private final IDeviceMapper mapper;
 
@@ -69,6 +73,15 @@ public class DeviceService implements IDeviceService {
                         .build());
         repository.delete(object);
         log.debug("Device with ID: {} deleted successfully", id);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<DeviceListDTO> getAll(DeviceFilterDTO filter) {
+        log.debug("Fetching all devices with pagination: {}", filter);
+        final Page<DeviceListDTO> page = customRepository.findByFilter(filter);
+        log.debug("Devices fetched: {}", page.getContent());
+        return page;
     }
 
     /**

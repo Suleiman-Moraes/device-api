@@ -19,6 +19,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DeviceListDTO implements Serializable {
 
+    public static final String DEVICE_LIST_DTO_MAPPING = "DeviceListDTOMapping";
+
     private Long id;
 
     private String name;
@@ -28,4 +30,13 @@ public class DeviceListDTO implements Serializable {
     private DeviceStateEnum state;
 
     private LocalDateTime creationTime;
+
+    // DeviceListDTOMapping
+    public DeviceListDTO(Long id, String name, String brand, String state, LocalDateTime creationTime) {
+        this.id = id;
+        this.name = name;
+        this.brand = brand;
+        this.state = DeviceStateEnum.valueOf(state);
+        this.creationTime = creationTime;
+    }
 }
