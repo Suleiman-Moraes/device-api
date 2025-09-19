@@ -1,5 +1,7 @@
 package com.moraes.device_api.api.service.interfaces;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 
 import com.moraes.device_api.api.exception.ResourceNotFoundException;
@@ -7,6 +9,7 @@ import com.moraes.device_api.api.exception.ValidException;
 import com.moraes.device_api.api.model.dto.device.DeviceDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceFilterDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceListDTO;
+import com.moraes.device_api.api.model.enums.DeviceStateEnum;
 
 public interface IDeviceService {
 
@@ -133,4 +136,20 @@ public interface IDeviceService {
      *                                   cannot be changed
      */
     void updatePartial(Long id, DeviceDTO dto);
+
+    /*
+     * Retrieves a list of DeviceListDTO given a device state.
+     *
+     * This method is transactional and will rollback if an exception occurs.
+     *
+     * @param state the device state to filter by
+     * 
+     * @return a list of devices with the given state
+     * 
+     * @throws ResourceNotFoundException if no devices are found with the given
+     * state
+     * 
+     * @throws ValidException if the device state is invalid
+     */
+    List<DeviceListDTO> getByState(DeviceStateEnum state);
 }

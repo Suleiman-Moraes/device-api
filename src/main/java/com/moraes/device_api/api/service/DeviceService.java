@@ -99,7 +99,7 @@ public class DeviceService implements IDeviceService {
     }
 
     @Transactional(readOnly = true)
-    // @Override
+    @Override
     public List<DeviceListDTO> getByState(DeviceStateEnum state) {
         log.debug("Fetching devices by state with state: {}", state);
         final List<Device> devices = repository.findByState(state);
