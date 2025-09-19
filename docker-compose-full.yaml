@@ -1,0 +1,47 @@
+services:
+
+  postgres:
+    image: postgres:17.4-bookworm
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: '123456'
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+    networks:
+      - device-net
+
+  device_api:
+    build:
+      context: .
+      dockerfile: Dockerfile2
+    container_name: device_api
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=postgres
+      - LOG_LEVEL=INFO
+      - SWAGGER_ENABLED=true
+      - SHOW_SQL=true
+    networks:
+      - device-net
+    ports:
+      - '8080:8080'
+
+
+networks:
+  device-net:
+    driver: bridge
+
+volumes:
+  postgresdata:
+
+# mvn clean install
+# docker-compose -f docker-compose-full.yaml up -d
+
+# docker build -f Dockerfile -t device_api .
+# docker build -f Dockerfile2 -t suleimanmoraes/device_api:1.0.0 -t suleimanmoraes/device_api:latest .
