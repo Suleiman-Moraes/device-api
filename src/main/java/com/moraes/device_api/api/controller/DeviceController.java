@@ -74,7 +74,7 @@ public class DeviceController {
 
     @Operation(summary = "Update an existing device", description = "Updates the details of an existing device by its ID. If the device is in use, certain fields cannot be updated.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Device updated successfully"),
+            @ApiResponse(responseCode = "204", description = "Device updated successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content),
             @ApiResponse(responseCode = "404", description = "Device not found", content = @Content),
             @ApiResponse(responseCode = "409", description = "Update conflict due to validation rules", content = @Content),
@@ -86,12 +86,12 @@ public class DeviceController {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Updated device data", required = true, content = @Content(schema = @Schema(implementation = DeviceDTO.class))) @Valid @RequestBody DeviceDTO dto) {
 
         service.update(id, dto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Partially update an existing device", description = "Updates only the non-null fields of an existing device by its ID. Fields that are null in the DTO are ignored. If the device is in use, certain fields cannot be updated.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Device partially updated successfully"),
+            @ApiResponse(responseCode = "204", description = "Device partially updated successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content),
             @ApiResponse(responseCode = "404", description = "Device not found", content = @Content),
             @ApiResponse(responseCode = "409", description = "Update conflict due to validation rules", content = @Content),
@@ -103,7 +103,7 @@ public class DeviceController {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Partial device data. Only non-null fields will be updated.", required = true, content = @Content(schema = @Schema(implementation = DeviceDTO.class))) @Validated(PartialChecks.class) @RequestBody DeviceDTO dto) {
 
         service.updatePartial(id, dto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Get a paginated list of devices", description = "Fetches a paginated list of devices based on filter criteria. Supports pagination, sorting, and various filter fields.")
