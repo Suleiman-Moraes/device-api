@@ -34,6 +34,8 @@ public class DeviceCustomRepository implements IDeviceCustomRepository {
     public Page<DeviceListDTO> findByFilter(DeviceFilterDTO filter) {
         if (!StringUtils.hasText(filter.getProperty())) {
             filter.setProperty("id");
+        }
+        if(filter.getDirection() == null) {
             filter.setDirection(Direction.DESC);
         }
         final Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize(),
@@ -65,7 +67,7 @@ public class DeviceCustomRepository implements IDeviceCustomRepository {
             sql.append(" item.name,");
             sql.append(" item.brand,");
             sql.append(" item.state,");
-            sql.append(" item.creation_time");
+            sql.append(" item.creation_time AS creationTime");
             sql.append(" ");
             Query query = getQueryByFilter(filter, sql.toString(),
                     String.format(" ORDER BY item.%s %s", filter.getProperty(),
@@ -174,7 +176,7 @@ public class DeviceCustomRepository implements IDeviceCustomRepository {
             map.put("state", filter.getState().name());
         }
         if (StringUtils.hasText(filter.getSearchText())) {
-            stringBuilder.append(" (item.name ILIKE :searchText ");
+            stringBuilder.append(" AND (item.name ILIKE :searchText ");
             stringBuilder.append(" OR item.brand ILIKE :searchText ");
             stringBuilder.append(" OR item.state ILIKE :searchText ");
             stringBuilder.append(" OR TO_CHAR(item.creation_time, 'YYYY-MM-DD HH24:MI:SS') ILIKE :searchText) ");

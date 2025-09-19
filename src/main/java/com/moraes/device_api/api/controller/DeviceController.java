@@ -2,6 +2,8 @@ package com.moraes.device_api.api.controller;
 
 import java.net.URI;
 
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.moraes.device_api.api.controller.interfaces.PartialChecks;
 import com.moraes.device_api.api.model.dto.device.DeviceDTO;
+import com.moraes.device_api.api.model.dto.device.DeviceFilterDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceListDTO;
 import com.moraes.device_api.api.service.interfaces.IDeviceService;
 
@@ -99,4 +102,16 @@ public class DeviceController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Get a paginated list of devices", description = "Fetches a paginated list of devices based on filter criteria. Supports pagination, sorting, and various filter fields.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of devices fetched successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DeviceListDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid filter parameters", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Unexpected error", content = @Content)
+    })
+    @GetMapping
+    public ResponseEntity<Page<DeviceListDTO>> getAll(
+            @ParameterObject @Valid DeviceFilterDTO filter) {
+        Page<DeviceListDTO> result = service.getAll(filter);
+        return ResponseEntity.ok(result);
+    }
 }

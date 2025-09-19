@@ -1,6 +1,7 @@
 package com.moraes.device_api.api.controller;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -9,11 +10,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -158,5 +163,35 @@ class DeviceControllerTest {
                 .content(json));
         // then
         response.andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("JUnit test given valid filter when getAll then return paginated list and status OK")
+    void testGivenValidFilterWhenGetAllThenReturnPaginatedList() throws Exception {
+        // given
+        Page<DeviceListDTO> page = new PageImpl<>(List.of(new DeviceListDTO()));
+        given(service.getAll(any())).willReturn(page);
+        // when
+        ResultActions response = mockMvc.perform(get(BASE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("brand", "")
+                .param("name", "")
+                .param("searchText", ""));
+        // then
+        response.andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    @DisplayName("JUnit test given invalid filter parameters when getAll then return Bad Request")
+    void testGivenInvalidFilterParametersWhenGetAllThenReturnBadRequest() throws Exception {
+        // given
+        // simulate invalid filter (e.g., negative page number)
+        // when
+        ResultActions response = mockMvc.perform(get(BASE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("page", "-1"));
+        // then
+        response.andExpect(status().isBadRequest());
     }
 }

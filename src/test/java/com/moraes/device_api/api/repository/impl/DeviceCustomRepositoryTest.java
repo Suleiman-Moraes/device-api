@@ -70,7 +70,7 @@ class DeviceCustomRepositoryTest {
 
         final String resultSQL = sql.toString();
         assertEquals("SELECT * FROM item WHERE 1=1 AND item.brand = :brand AND item.name ILIKE :name" +
-                " (item.name ILIKE :searchText  OR item.brand ILIKE :searchText " +
+                " AND (item.name ILIKE :searchText  OR item.brand ILIKE :searchText " +
                 " OR item.state ILIKE :searchText  OR TO_CHAR(item.creation_time, 'YYYY-MM-DD HH24:MI:SS') ILIKE :searchText) ",
                 resultSQL, "SQL should contain all appended filters");
 
@@ -134,7 +134,7 @@ class DeviceCustomRepositoryTest {
         service.applyFilters(filter, params, sql);
 
         final String resultSQL = sql.toString();
-        assertEquals("SELECT * FROM item WHERE 1=1 (item.name ILIKE :searchText  OR item.brand ILIKE :searchText " +
+        assertEquals("SELECT * FROM item WHERE 1=1 AND (item.name ILIKE :searchText  OR item.brand ILIKE :searchText " +
                 " OR item.state ILIKE :searchText  OR TO_CHAR(item.creation_time, 'YYYY-MM-DD HH24:MI:SS') ILIKE :searchText) ",
                 resultSQL, "SQL should contain searchText filter only");
         assertEquals("%test%", params.get("searchText"), "SearchText param should be wrapped with %");
