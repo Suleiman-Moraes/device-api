@@ -120,7 +120,7 @@ class DeviceControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
         // then
-        response.andExpect(status().isOk());
+        response.andExpect(status().isNoContent());
     }
 
     @Test
@@ -149,7 +149,7 @@ class DeviceControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
         // then
-        response.andExpect(status().isOk());
+        response.andExpect(status().isNoContent());
     }
 
     @Test
@@ -163,7 +163,7 @@ class DeviceControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
         // then
-        response.andExpect(status().isOk());
+        response.andExpect(status().isNoContent());
     }
 
     @Test
