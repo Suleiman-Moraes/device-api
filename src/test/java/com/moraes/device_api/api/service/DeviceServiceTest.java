@@ -5,7 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -234,6 +238,18 @@ class DeviceServiceTest {
         final List<Device> devices = List.of(input.mockEntity(1));
 
         assertDoesNotThrow(() -> service.validateDevicesByParam(param, devices), "Should not throw exception");
+    }
+
+    @Test
+    @DisplayName("JUnit test given DeviceStateEnum when getByState then return list of DeviceListDTO")
+    void testGivenDeviceStateEnumWhenGetByStateThenReturnListOfDeviceListDTO() {
+        final var state = DeviceStateEnum.AVAILABLE;
+        when(repository.findByState(state)).thenReturn(List.of(entity));
+        when(mapper.toListDTOs(List.of(entity))).thenReturn(List.of(mockDeviceListDTO.mockEntity(1)));
+        final var response = service.getByState(state);
+        verify(service, times(1)).validateDevicesByParam(anyString(), anyList());
+        assertNotNull(response, "Response should not be null");
+        assertEquals(1, response.size(), "Response size should be 1");
     }
 
     private static Stream<Arguments> provideParametersValidateBeforeUpdateShouldThrow() {
