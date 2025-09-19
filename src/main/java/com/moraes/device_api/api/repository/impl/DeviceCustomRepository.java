@@ -166,8 +166,12 @@ public class DeviceCustomRepository implements IDeviceCustomRepository {
             map.put("brand", filter.getBrand());
         }
         if (StringUtils.hasText(filter.getName())) {
-            stringBuilder.append(" AND item.name = :name");
-            map.put("name", filter.getName());
+            stringBuilder.append(" AND item.name ILIKE :name");
+            map.put("name", "%" + filter.getName().trim() + "%");
+        }
+        if(filter.getState() != null) {
+            stringBuilder.append(" AND item.state = :state");
+            map.put("state", filter.getState().name());
         }
         if (StringUtils.hasText(filter.getSearchText())) {
             stringBuilder.append(" (item.name ILIKE :searchText ");

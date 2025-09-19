@@ -3,6 +3,7 @@ package com.moraes.device_api.api.model.dto.device;
 import org.springframework.data.domain.Sort.Direction;
 
 import com.moraes.device_api.api.model.dto.interfaces.IFilterDTO;
+import com.moraes.device_api.api.model.enums.DeviceStateEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,4 +35,6 @@ public class DeviceFilterDTO implements IFilterDTO {
     private String name;
 
     private String brand;
+
+    private DeviceStateEnum state;
 }

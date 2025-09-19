@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -65,7 +66,8 @@ class IDeviceMapperTest {
     @Test
     @DisplayName("JUnit test given null value when toListDTO then return null")
     void testGivenNullValueWhenToListDTOThenReturnNull() {
-        final DeviceListDTO dto = mapper.toListDTO(null);
+        final Device entity = null;
+        final DeviceListDTO dto = mapper.toListDTO(entity);
         assertNull(dto, "DTO should be null");
     }
 
@@ -139,6 +141,35 @@ class IDeviceMapperTest {
         assertEquals(expectedBrand, entity.getBrand(), "Brand should be equal " + expectedBrand);
         assertEquals(expectedName, entity.getName(), "Name should be equal " + expectedName);
         assertEquals(expectedState, entity.getState(), "State should be equal " + expectedState);
+    }
+
+    @Test
+    @DisplayName("JUnit test given null value when toListDTOs then return null")
+    void testGivenNullValueWhenToListDTOsThenReturnNull() {
+        final List<Device> entities = null;
+        final var dtos = mapper.toListDTOs(entities);
+        assertNull(dtos, "DTOs should be null");
+    }
+
+    @Test
+    @DisplayName("JUnit test given list of Device when toListDTOs then return list of DeviceListDTO")
+    void testGivenListOfDeviceWhenToListDTOsThenReturnListOfDeviceListDTO() {
+        final List<Device> entities = List.of(mockDevice.mockEntity(1), mockDevice.mockEntity(2));
+        final var dtos = mapper.toListDTOs(entities);
+
+        assertNotNull(dtos, "DTOs should not be null");
+        assertEquals(2, dtos.size(), "DTOs size should be 2");
+
+        for (int i = 0; i < entities.size(); i++) {
+            final var entity = entities.get(i);
+            final var dto = dtos.get(i);
+
+            assertEquals(entity.getId(), dto.getId(), "ID should be equal");
+            assertEquals(entity.getName(), dto.getName(), "Name should be equal");
+            assertEquals(entity.getBrand(), dto.getBrand(), "Brand should be equal");
+            assertEquals(entity.getState(), dto.getState(), "State should be equal");
+            assertEquals(entity.getCreationTime(), dto.getCreationTime(), "Creation time should be equal");
+        }
     }
 
     private static Stream<Arguments> provideParametersForUpdatePartialFromDeviceDTO() {

@@ -106,4 +106,31 @@ public interface IDeviceService {
      * @return a page of devices mapped from the fetched devices
      */
     Page<DeviceListDTO> getAll(DeviceFilterDTO filter);
+
+    /**
+     * Partially updates a device with the given ID using the given DeviceDTO
+     * object.
+     * <p>
+     * This method is transactional and will rollback if an exception occurs.
+     * <p>
+     * The device will be fetched from the database using the given ID.
+     * If the device is not found, a ResourceNotFoundException will be thrown.
+     * <p>
+     * The method will then update the fetched device with the values from the given
+     * DeviceDTO object.
+     * If the device is in use, a ValidException will be thrown with the conditions
+     * that cannot be changed.
+     * <p>
+     * The method will then save the updated device to the database.
+     * <p>
+     * A debug message will be logged with the ID of the updated device.
+     * 
+     * @param id  the ID of the device to partially update
+     * @param dto the DeviceDTO object containing the device data to partially
+     *            update
+     * @throws ResourceNotFoundException if the device is not found
+     * @throws ValidException            if the device is in use and the conditions
+     *                                   cannot be changed
+     */
+    void updatePartial(Long id, DeviceDTO dto);
 }

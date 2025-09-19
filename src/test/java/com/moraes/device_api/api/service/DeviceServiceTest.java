@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -16,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -129,6 +132,13 @@ class DeviceServiceTest {
         when(repository.findById(id)).thenReturn(Optional.of(entity));
 
         assertDoesNotThrow(() -> service.update(id, dto), "Should not throw exception");
+        InOrder inOrder = inOrder(service, mapper, repository);
+
+        inOrder.verify(service).validateBeforeUpdate(entity, dto);
+        inOrder.verify(mapper).updateFromDeviceDTO(dto, entity);
+        inOrder.verify(repository).save(entity);
+
+        inOrder.verifyNoMoreInteractions();
     }
 
     @Test
@@ -185,6 +195,45 @@ class DeviceServiceTest {
 
         assertNotNull(response, "Page should not be null");
         assertTrue(response.isEmpty(), "Page should be empty");
+    }
+
+    @Test
+    @DisplayName("JUnit test given Device ID and DeviceDTO when updatePartial then updated Device")
+    void testGivenDeviceIDAndDeviceDTOWhenUpdatePartialThenUpdatedDevice() {
+        final var dto = mockDeviceDTO.mockEntity(1);
+        when(repository.findById(id)).thenReturn(Optional.of(entity));
+
+        assertDoesNotThrow(() -> service.updatePartial(id, dto), "Should not throw exception");
+        InOrder inOrder = inOrder(service, mapper, repository);
+
+        inOrder.verify(service).validateBeforeUpdate(entity, dto);
+        inOrder.verify(mapper).updatePartialFromDeviceDTO(dto, entity);
+        inOrder.verify(repository).save(entity);
+
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    // void validateDevicesByParam(String param, final List<Device> devices)
+    @Test
+    @DisplayName("JUnit test given DeviceStateEnum and empty devices list when validateDevicesByParam then throw ResourceNotFoundException")
+    void testGivenDeviceStateEnumAndEmptyDevicesListWhenValidateDevicesByParamThenThrowResourceNotFoundException() {
+        final var state = DeviceStateEnum.AVAILABLE;
+        final List<Device> devices = List.of();
+
+        final ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            service.validateDevicesByParam(state.name(), devices);
+        }, "Should throw ResourceNotFoundException when devices list is empty");
+        assertEquals("No devices found with param: " + state.name(), exception.getMessage(),
+                "Message should be equal");
+    }
+
+    @Test
+    @DisplayName("JUnit test given random param and devices list when validateDevicesByParam then does not throw exception")
+    void testGivenRandomParamAndDevicesListWhenValidateDevicesByParamThenDoesNotThrowException() {
+        final var param = "randomParam";
+        final List<Device> devices = List.of(input.mockEntity(1));
+
+        assertDoesNotThrow(() -> service.validateDevicesByParam(param, devices), "Should not throw exception");
     }
 
     private static Stream<Arguments> provideParametersValidateBeforeUpdateShouldThrow() {

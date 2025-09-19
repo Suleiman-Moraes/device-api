@@ -1,8 +1,12 @@
 package com.moraes.device_api.api.mapper;
 
+import java.util.List;
+
 import org.mapstruct.BeanMapping;
+import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
@@ -34,8 +38,12 @@ public interface IDeviceMapper {
      * @param entity the Device object to map.
      * @return the mapped DeviceListDTO object.
      */
+    @Named("toListDTOs")
     @BeanMapping(unmappedTargetPolicy = ReportingPolicy.IGNORE)
     DeviceListDTO toListDTO(Device entity);
+
+    @IterableMapping(qualifiedByName = "toListDTOs")
+    List<DeviceListDTO> toListDTOs(List<Device> entities);
 
     /**
      * Updates a Device object with the values from a DeviceDTO object.
@@ -49,9 +57,14 @@ public interface IDeviceMapper {
     @BeanMapping(unmappedTargetPolicy = ReportingPolicy.IGNORE)
     void updateFromDeviceDTO(DeviceDTO dto, @MappingTarget Device entity);
 
-    @BeanMapping(
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        unmappedTargetPolicy = ReportingPolicy.IGNORE
-    )
+    /**
+     * Updates a Device object with the values from a DeviceDTO object,
+     * ignoring null values and unmapped target properties.
+     * <p>
+     * 
+     * @param dto    the DeviceDTO object with the values to update.
+     * @param entity the Device object to update.
+     */
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, unmappedTargetPolicy = ReportingPolicy.IGNORE)
     void updatePartialFromDeviceDTO(DeviceDTO dto, @MappingTarget Device entity);
 }

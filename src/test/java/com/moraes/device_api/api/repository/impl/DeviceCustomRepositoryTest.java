@@ -30,6 +30,7 @@ import org.springframework.data.domain.Sort.Direction;
 
 import com.moraes.device_api.api.model.dto.device.DeviceFilterDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceListDTO;
+import com.moraes.device_api.api.model.enums.DeviceStateEnum;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -68,13 +69,13 @@ class DeviceCustomRepositoryTest {
         assertNotNull(params, "Params map should not be null");
 
         final String resultSQL = sql.toString();
-        assertEquals("SELECT * FROM item WHERE 1=1 AND item.brand = :brand AND item.name = :name" +
+        assertEquals("SELECT * FROM item WHERE 1=1 AND item.brand = :brand AND item.name ILIKE :name" +
                 " (item.name ILIKE :searchText  OR item.brand ILIKE :searchText " +
                 " OR item.state ILIKE :searchText  OR TO_CHAR(item.creation_time, 'YYYY-MM-DD HH24:MI:SS') ILIKE :searchText) ",
                 resultSQL, "SQL should contain all appended filters");
 
         assertEquals("Samsung", params.get("brand"), "Brand param should match");
-        assertEquals("Galaxy", params.get("name"), "Name param should match");
+        assertEquals("%Galaxy%", params.get("name"), "Name param should match");
         assertEquals("%phone%", params.get("searchText"), "SearchText param should be wrapped with %");
     }
 
@@ -94,6 +95,21 @@ class DeviceCustomRepositoryTest {
     }
 
     @Test
+    @DisplayName("JUnit test given DeviceFilterDTO with only state when applyFilters then append state filter")
+    void testGivenDeviceFilterDTOWithOnlyStateWhenApplyFiltersThenAppendStateFilter() {
+        final var filter = DeviceFilterDTO.builder().state(DeviceStateEnum.AVAILABLE).build();
+        final Map<String, Object> params = new HashMap<>();
+        final StringBuilder sql = new StringBuilder("SELECT * FROM item WHERE 1=1");
+
+        service.applyFilters(filter, params, sql);
+
+        final String resultSQL = sql.toString();
+        assertEquals("SELECT * FROM item WHERE 1=1 AND item.state = :state", resultSQL,
+                "SQL should contain state filter only");
+        assertEquals(DeviceStateEnum.AVAILABLE.name(), params.get("state"), "State param should match");
+    }
+
+    @Test
     @DisplayName("JUnit test given DeviceFilterDTO with only name when applyFilters then append name filter")
     void testGivenDeviceFilterDTOWithOnlyNameWhenApplyFiltersThenAppendNameFilter() {
         final var filter = DeviceFilterDTO.builder().name("iPhone").build();
@@ -103,9 +119,9 @@ class DeviceCustomRepositoryTest {
         service.applyFilters(filter, params, sql);
 
         final String resultSQL = sql.toString();
-        assertEquals("SELECT * FROM item WHERE 1=1 AND item.name = :name", resultSQL,
+        assertEquals("SELECT * FROM item WHERE 1=1 AND item.name ILIKE :name", resultSQL,
                 "SQL should contain name filter only");
-        assertEquals("iPhone", params.get("name"), "Name param should match");
+        assertEquals("%iPhone%", params.get("name"), "Name param should match");
     }
 
     @Test
@@ -171,7 +187,7 @@ class DeviceCustomRepositoryTest {
 
         assertNotNull(response, "Query should not be null");
         verify(entityManager, times(1)).createNativeQuery(contains("FROM device_api.device item"), eq(mappingName));
-        verify(query, times(1)).setParameter("name", "Galaxy");
+        verify(query, times(1)).setParameter("name", "%Galaxy%");
     }
 
     @Test

@@ -1,8 +1,11 @@
 package com.moraes.device_api.api.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import com.moraes.device_api.api.exception.ResourceNotFoundException;
 import com.moraes.device_api.api.exception.ValidException;
@@ -61,9 +64,8 @@ public class DeviceService implements IDeviceService {
         log.debug("Device with ID: {} updated successfully", id);
     }
 
-    // TODO: Make tests
     @Transactional
-    // @Override
+    @Override
     public void updatePartial(Long id, DeviceDTO dto) {
         log.debug("Partially updating device with ID: {} using data: {}", id, dto);
         Device existingObject = getById(id);
@@ -94,6 +96,17 @@ public class DeviceService implements IDeviceService {
         final Page<DeviceListDTO> page = customRepository.findByFilter(filter);
         log.debug("Devices fetched: {}", page.getContent());
         return page;
+    }
+
+    @Transactional(readOnly = true)
+    // @Override
+    public List<DeviceListDTO> getByState(DeviceStateEnum state) {
+        log.debug("Fetching devices by state with state: {}", state);
+        final List<Device> devices = repository.findByState(state);
+        validateDevicesByParam(state.name(), devices);
+        final List<DeviceListDTO> dtos = mapper.toListDTOs(devices);
+        log.debug("Devices fetched: {}", dtos);
+        return dtos;
     }
 
     /**
@@ -148,6 +161,25 @@ public class DeviceService implements IDeviceService {
                             .condition(entity.getBrand().equals(dto.getBrand()))
                             .message("Device brand cannot be changed while in use.")
                             .build());
+        }
+    }
+
+    /**
+     * Validates if a list of devices is not empty, given a param.
+     * If the list is empty, a ResourceNotFoundException is thrown with a message
+     * containing the param.
+     * <p>
+     * This method is used to ensure that at least one device is found with a
+     * given param.
+     * <p>
+     * 
+     * @param param   the param to validate
+     * @param devices the list of devices to validate
+     * @throws ResourceNotFoundException if the list of devices is empty
+     */
+    public void validateDevicesByParam(String param, final List<Device> devices) {
+        if (CollectionUtils.isEmpty(devices)) {
+            throw new ResourceNotFoundException("No devices found with param: " + param);
         }
     }
 }
