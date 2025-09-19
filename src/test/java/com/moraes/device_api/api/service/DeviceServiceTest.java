@@ -252,6 +252,18 @@ class DeviceServiceTest {
         assertEquals(1, response.size(), "Response size should be 1");
     }
 
+    @Test
+    @DisplayName("JUnit test given brand when getByBrand then return list of DeviceListDTO")
+    void testGivenBrandWhenGetByBrandThenReturnListOfDeviceListDTO() {
+        final var brand = "Device Brand 1";
+        when(repository.findByBrand(brand)).thenReturn(List.of(entity));
+        when(mapper.toListDTOs(List.of(entity))).thenReturn(List.of(mockDeviceListDTO.mockEntity(1)));
+        final var response = service.getByBrand(brand);
+        verify(service, times(1)).validateDevicesByParam(anyString(), anyList());
+        assertNotNull(response, "Response should not be null");
+        assertEquals(1, response.size(), "Response size should be 1");
+    }
+
     private static Stream<Arguments> provideParametersValidateBeforeUpdateShouldThrow() {
         final DeviceStateEnum state = DeviceStateEnum.IN_USE;
         final String name = "Device Name";

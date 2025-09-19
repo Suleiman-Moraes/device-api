@@ -152,4 +152,18 @@ public interface IDeviceService {
      * @throws ValidException if the device state is invalid
      */
     List<DeviceListDTO> getByState(DeviceStateEnum state);
+
+    /**
+     * Retrieves a list of devices by their brand.
+     * <p>
+     * This method is transactional and will rollback if an exception occurs.
+     * <p>
+     * The devices will be fetched from the database using the given brand.
+     * If the devices are not found, an empty list will be returned.
+     * <p>
+     * 
+     * @param brand the brand of the devices to fetch
+     * @return the fetched devices
+     */
+    List<DeviceListDTO> getByBrand(String brand);
 }

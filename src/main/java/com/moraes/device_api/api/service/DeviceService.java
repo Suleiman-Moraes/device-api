@@ -105,7 +105,18 @@ public class DeviceService implements IDeviceService {
         final List<Device> devices = repository.findByState(state);
         validateDevicesByParam(state.name(), devices);
         final List<DeviceListDTO> dtos = mapper.toListDTOs(devices);
-        log.debug("Devices fetched: {}", dtos);
+        log.debug("Devices fetched by state: {}", dtos);
+        return dtos;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<DeviceListDTO> getByBrand(String brand) {
+        log.debug("Fetching devices by brand with param: {}", brand);
+        final List<Device> devices = repository.findByBrand(brand);
+        validateDevicesByParam(brand, devices);
+        final List<DeviceListDTO> dtos = mapper.toListDTOs(devices);
+        log.debug("Devices fetched by brand: {}", dtos);
         return dtos;
     }
 
