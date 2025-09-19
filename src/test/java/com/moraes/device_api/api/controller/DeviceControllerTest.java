@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moraes.device_api.api.exception.ResourceNotFoundException;
 import com.moraes.device_api.api.model.dto.device.DeviceDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceListDTO;
+import com.moraes.device_api.api.model.enums.DeviceStateEnum;
 import com.moraes.device_api.api.service.interfaces.IDeviceService;
 import com.moraes.device_api.mock.MockDeviceDTO;
 
@@ -193,5 +194,65 @@ class DeviceControllerTest {
                 .param("page", "-1"));
         // then
         response.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("JUnit test given valid state when getByState then return list of devices and status OK")
+    void testGivenValidStateWhenGetByStateThenReturnList() throws Exception {
+        // given
+        DeviceStateEnum state = DeviceStateEnum.IN_USE;
+        List<DeviceListDTO> dtos = List.of(new DeviceListDTO());
+        given(service.getByState(state)).willReturn(dtos);
+        // when
+        ResultActions response = mockMvc.perform(get(BASE_URL + "/state")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("state", state.name()));
+        // then
+        response.andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("JUnit test given no devices for state when getByState then return Not Found")
+    void testGivenNoDevicesForStateWhenGetByStateThenReturnNotFound() throws Exception {
+        // given
+        DeviceStateEnum state = DeviceStateEnum.IN_USE;
+        given(service.getByState(state)).willThrow(new ResourceNotFoundException("No devices found"));
+        // when
+        ResultActions response = mockMvc.perform(get(BASE_URL + "/state")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("state", state.name()));
+        // then
+        response.andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("JUnit test given valid brand when getByBrand then return list of devices and status OK")
+    void testGivenValidBrandWhenGetByBrandThenReturnList() throws Exception {
+        // given
+        final String brand = "Apple";
+        List<DeviceListDTO> dtos = List.of(new DeviceListDTO());
+        given(service.getByBrand(brand)).willReturn(dtos);
+        // when
+        ResultActions response = mockMvc.perform(get(BASE_URL + "/brand")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("brand", brand));
+        // then
+        response.andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("JUnit test given no devices for brand when getByBrand then return Not Found")
+    void testGivenNoDevicesForBrandWhenGetByBrandThenReturnNotFound() throws Exception {
+        // given
+        final String brand = "Apple";
+        given(service.getByBrand(brand)).willThrow(new ResourceNotFoundException("No devices found"));
+        // when
+        ResultActions response = mockMvc.perform(get(BASE_URL + "/brand")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("brand", brand));
+        // then
+        response.andExpect(status().isNotFound());
     }
 }

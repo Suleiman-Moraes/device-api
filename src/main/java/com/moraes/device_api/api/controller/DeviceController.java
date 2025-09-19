@@ -1,6 +1,7 @@
 package com.moraes.device_api.api.controller;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -13,16 +14,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.moraes.device_api.api.controller.interfaces.PartialChecks;
 import com.moraes.device_api.api.model.dto.device.DeviceDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceFilterDTO;
 import com.moraes.device_api.api.model.dto.device.DeviceListDTO;
+import com.moraes.device_api.api.model.enums.DeviceStateEnum;
 import com.moraes.device_api.api.service.interfaces.IDeviceService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -113,5 +117,33 @@ public class DeviceController {
             @ParameterObject @Valid DeviceFilterDTO filter) {
         Page<DeviceListDTO> result = service.getAll(filter);
         return ResponseEntity.ok(result);
+    }
+
+    @Operation(summary = "Get devices by state", description = "Fetches all devices with the given state. Throws 404 if no devices are found.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Devices fetched successfully", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DeviceListDTO.class)))),
+            @ApiResponse(responseCode = "404", description = "No devices found for the given state", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Unexpected error", content = @Content)
+    })
+    @GetMapping("/state")
+    public ResponseEntity<List<DeviceListDTO>> getByState(
+            @Parameter(description = "State to filter devices", required = true, example = "IN_USE") @RequestParam DeviceStateEnum state) {
+
+        List<DeviceListDTO> dtos = service.getByState(state);
+        return ResponseEntity.ok(dtos);
+    }
+
+    @Operation(summary = "Get devices by brand", description = "Fetches all devices with the given brand. Throws 404 if no devices are found.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Devices fetched successfully", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DeviceListDTO.class)))),
+            @ApiResponse(responseCode = "404", description = "No devices found for the given brand", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Unexpected error", content = @Content)
+    })
+    @GetMapping("/brand")
+    public ResponseEntity<List<DeviceListDTO>> getByBrand(
+            @Parameter(description = "Brand to filter devices", required = true, example = "IN_USE") @RequestParam String brand) {
+
+        List<DeviceListDTO> dtos = service.getByBrand(brand);
+        return ResponseEntity.ok(dtos);
     }
 }
