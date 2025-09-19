@@ -136,13 +136,18 @@ class IntegrationDeviceControllerTest extends AbstractIntegrationTest {
 
     @Test
     @Order(6)
-    @DisplayName("JUnit Integration test Given Id When delete Then return no content")
-    void testGivenIdWhenDeleteThenReturnNoContent() {
+    @DisplayName("JUnit Integration test Given brand When getByBrand Then return List<DeviceListDTO>")
+    void testGivenBrandWhenGetByBrandThenReturnListDeviceListDTO() {
         final Response response = given().spec(specification)
-                .pathParam("id", id)
+                .queryParam("brand", dto.getBrand())
                 .when()
-                .delete("/{id}");
-        response.then().statusCode(204);
+                .get("/brand");
+        response.then().statusCode(200);
+
+        String json = response.getBody().asString();
+        assertNotNull(json, "Response body is null");
+        assertTrue(json.contains("brand"), "Response does not contain expected brand");
+        assertTrue(json.contains("state"), "Response does not contain expected state");
     }
 
     @Test
@@ -163,18 +168,13 @@ class IntegrationDeviceControllerTest extends AbstractIntegrationTest {
 
     @Test
     @Order(8)
-    @DisplayName("JUnit Integration test Given brand When getByBrand Then return List<DeviceListDTO>")
-    void testGivenBrandWhenGetByBrandThenReturnListDeviceListDTO() {
+    @DisplayName("JUnit Integration test Given Id When delete Then return no content")
+    void testGivenIdWhenDeleteThenReturnNoContent() {
         final Response response = given().spec(specification)
-                .queryParam("brand", dto.getBrand())
+                .pathParam("id", id)
                 .when()
-                .get("/brand");
-        response.then().statusCode(200);
-
-        String json = response.getBody().asString();
-        assertNotNull(json, "Response body is null");
-        assertTrue(json.contains("brand"), "Response does not contain expected brand");
-        assertTrue(json.contains("state"), "Response does not contain expected state");
+                .delete("/{id}");
+        response.then().statusCode(204);
     }
 
     private static Response getById() {

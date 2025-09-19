@@ -68,6 +68,25 @@ docker build -f Dockerfile2 \
 
 ---
 
+## Testing
+
+This project includes **integration tests** in addition to unit tests.
+
+* **Rest-Assured** is used for testing REST API endpoints.
+* **Testcontainers (PostgreSQL)** spins up a real PostgreSQL database inside Docker during the test lifecycle.
+
+### Requirements
+
+To run integration tests locally you must have **Docker** installed and available in your environment, since Testcontainers relies on it.
+
+### Run all tests
+
+```bash
+mvn test
+```
+
+---
+
 ## API Endpoints
 
 ### Base URL
