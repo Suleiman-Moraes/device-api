@@ -87,6 +87,7 @@ http://localhost:8080/api/v1/devices
 | POST   | `/devices`                    | Create a new device                 |
 | PUT    | `/devices/{id}`               | Update an existing device (full)    |
 | PATCH  | `/devices/{id}`               | Partially update an existing device |
+| DELETE | `/devices/{id}`               | Delete a device by ID               |
 
 ---
 

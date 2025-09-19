@@ -3,6 +3,8 @@ package com.moraes.device_api.api.controller;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -254,5 +256,18 @@ class DeviceControllerTest {
                 .param("brand", brand));
         // then
         response.andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("JUnit test given valid ID when delete then return No Content")
+    void testGivenValidIdWhenDeleteThenReturnNoContent() throws Exception {
+        // given
+        long id = 1L;
+        willDoNothing().given(service).delete(id);
+        // when
+        ResultActions response = mockMvc.perform(delete(BASE_URL + "/" + id)
+                .contentType(MediaType.APPLICATION_JSON));
+        // then
+        response.andExpect(status().isNoContent());
     }
 }
