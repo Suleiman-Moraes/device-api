@@ -9,23 +9,23 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import lombok.Getter;
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
+@ResponseStatus(HttpStatus.CONFLICT)
 public class ValidException extends PatternException {
 
     @Getter
     private List<String> errs = new LinkedList<>();
 
     public ValidException(String message) {
-        this(message, HttpStatus.BAD_REQUEST);
+        this(message, HttpStatus.CONFLICT);
     }
 
     public ValidException(String... messages) {
-        super(Arrays.toString(messages), HttpStatus.BAD_REQUEST);
+        super(Arrays.toString(messages), HttpStatus.CONFLICT);
         errs = Arrays.asList(messages);
     }
 
     public ValidException(List<String> messages) {
-        super(messages.toString(), HttpStatus.BAD_REQUEST);
+        super(messages.toString(), HttpStatus.CONFLICT);
         errs = messages;
     }
 
